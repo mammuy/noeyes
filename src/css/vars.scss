@@ -1,0 +1,71 @@
+:root {
+    --system-accent-color: hsl(200, 80%, 83%);
+    --system-accent-light: hsl(200, 80%, 83%);
+    --system-accent-medium: hsl(200, 81%, 45%);
+    --system-accent-dark: hsl(200, 80%, 20%);
+
+    --slider-track-color: #333;
+    --slider-track-color-focus: #555;
+
+    --tray-background-base: #000000;
+    --tray-background: var(--tray-background-base);
+    --tray-background-transparent: #000000;
+    --tray-background-blur: #000000;
+    --tray-background-blur-start: #000000;
+    --tray-text: white;
+    --tray-border: #222222;
+
+    --page-background: #000000;
+    --page-text: #ffffff;
+    --page-text-mid: #aaaaaa;
+
+    --sidebar-item-hover: #ffffff26;
+
+    --window-border: #222222;
+
+    --titlebar-icon: #888;
+    --titlebar-icon-hover: #fff;
+
+    --input-border: #444444;
+    --input-border-hover: #ffffff;
+    --input-active-background: #222222;
+    
+    --button-background: #1a1a1a;
+    --button-primary-background: #333333;
+
+    --slider-thumb-border: #000000;
+    --mica-base-color: #000000;
+    --page-section-bg: #0a0a0a;
+}
+
+body {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+// Override all themes to be dark and solid
+body[data-theme], html body[data-is-win11="true"] {
+    --page-background: #000000 !important;
+    --tray-background: #000000 !important;
+    --tray-background-transparent: #000000 !important;
+    --mica-base-color: #000000 !important;
+    --page-section-bg: #0a0a0a !important;
+    --tray-titlebar-bg: #000000 !important;
+}
+
+// Disable all transparency/blur logic
+body[data-transparent="true"] .window-base {
+    background: #000000 !important;
+    --tray-background: #000000 !important;
+}
+
+#mica {
+    background-color: #000000 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    .displays {
+        .blur {
+            display: none !important;
+        }
+    }
+}
