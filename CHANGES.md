@@ -1,6 +1,6 @@
-# Twinkle Tray Private Version - Changes
+# Curtin - Changes
 
-This document tracks the modifications made to Twinkle Tray to create a more private and stripped-down version.
+This document tracks the modifications made to Curtin to create a more private and stripped-down version.
 
 ## [2026-04-03]
 

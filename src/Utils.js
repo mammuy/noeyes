@@ -28,7 +28,7 @@ function pipeSendCommand(type, data, port = 14715, key) {
             reject("No response")
         }, 1000)
 
-        const client = require('net').connect('\\\\.\\pipe\\twinkle-tray\\cmds')
+        const client = require('net').connect('\\\\.\\pipe\\curtin\\cmds')
 
         client.on('data', function(message) {
             resolve(message?.toString())

@@ -133,7 +133,7 @@ function createSettings() {
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
-      additionalArguments: ["jsVars" + Buffer.from(JSON.stringify({ settings, settingsPath, appName: "Twinkle Tray Private" })).toString('base64')]
+      additionalArguments: ["jsVars" + Buffer.from(JSON.stringify({ settings, settingsPath, appName: "Curtin" })).toString('base64')]
     }
   })
   settingsWindow.loadURL(isDev ? "http://localhost:3000/settings.html" : `file://${path.join(__dirname, "../build/settings.html")}`)
@@ -148,7 +148,7 @@ function createTray() {
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() }
   ])
-  tray.setToolTip('Twinkle Tray Private')
+  tray.setToolTip('Curtin')
   tray.setContextMenu(contextMenu)
   tray.on('click', () => toggleTray())
 }

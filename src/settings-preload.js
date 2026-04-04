@@ -262,5 +262,5 @@ window.accent = "cyan"
 window.version = 'v' + getArgumentVars().appVersion
 window.versionTag = getArgumentVars().appVersionTag
 window.versionBuild = getArgumentVars().appBuild
-window.isAppX = (getArgumentVars().appName == "twinkle-tray-appx" ? true : false)
+window.isAppX = (getArgumentVars().appName == "curtin-appx" ? true : false)
 window.settingsPath = getArgumentVars().settingsPath

@@ -451,4 +451,4 @@ window.theme = "dark"
 window.settings = {}
 window.jsVars = getArgumentVars()
 window.isRefreshing = getArgumentVars().isRefreshing
-window.isAppX = (getArgumentVars().appName == "twinkle-tray-appx" ? true : false)
+window.isAppX = (getArgumentVars().appName == "curtin-appx" ? true : false)

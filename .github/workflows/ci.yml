@@ -35,14 +35,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Build Win32 installer
-        run: npm exec electron-builder -- --x64 --config.extraMetadata.versionBuild="${{ steps.info.outputs.version }}+${{ github.sha }}" --config.win.artifactName="Twinkle.Tray.v${{ steps.info.outputs.version }}.exe" --publish="never"
+        run: npm exec electron-builder -- --x64 --config.extraMetadata.versionBuild="${{ steps.info.outputs.version }}+${{ github.sha }}" --config.win.artifactName="Curtin.v${{ steps.info.outputs.version }}.exe" --publish="never"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - uses: actions/upload-artifact@v4
         name: Upload Win32 installer
         with:
-          name: twinkle-tray-exe-${{ steps.info.outputs.version }}-${{ github.sha }}
+          name: curtin-exe-${{ steps.info.outputs.version }}-${{ github.sha }}
           path: dist/*.exe
 
       - name: Get current date
@@ -53,7 +53,7 @@ jobs:
           
       - name: Build x64 AppX
         if: ${{ env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'ci-test' }}
-        run: npm exec electron-builder -- --x64 --win appx --config.npmRebuild=false --config.extraMetadata.versionBuild="${{ steps.info.outputs.version }}+${{ github.sha }}" --config.extraMetadata.version=${{ steps.date.outputs.time }} --config.extraMetadata.name=twinkle-tray-appx --config.win.artifactName="Twinkle.Tray.v${{ steps.info.outputs.version }}-store.appx" --publish="never"
+        run: npm exec electron-builder -- --x64 --win appx --config.npmRebuild=false --config.extraMetadata.versionBuild="${{ steps.info.outputs.version }}+${{ github.sha }}" --config.extraMetadata.version=${{ steps.date.outputs.time }} --config.extraMetadata.name=curtin-appx --config.win.artifactName="Curtin.v${{ steps.info.outputs.version }}-store.appx" --publish="never"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
@@ -61,7 +61,7 @@ jobs:
         name: Upload x64 AppX
         if: ${{ env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'ci-test' }}
         with:
-          name: twinkle-tray-appx-x64-${{ steps.info.outputs.version }}-${{ github.sha }}
+          name: curtin-appx-x64-${{ steps.info.outputs.version }}-${{ github.sha }}
           path: dist/*-store.appx
           
       - name: Build ARM64 Modules
@@ -70,7 +70,7 @@ jobs:
           
       - name: Build ARM64 AppX
         if: ${{ env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'ci-test' }}
-        run: npm exec electron-builder -- --arm64 --win appx --config.extraMetadata.versionBuild="${{ steps.info.outputs.version }}+${{ github.sha }}" --config.extraMetadata.version=${{ steps.date.outputs.time }} --config.extraMetadata.name=twinkle-tray-appx --config.win.artifactName="Twinkle.Tray.v${{ steps.info.outputs.version }}-store-arm64.appx" --config.npmRebuild=false --publish="never"
+        run: npm exec electron-builder -- --arm64 --win appx --config.extraMetadata.versionBuild="${{ steps.info.outputs.version }}+${{ github.sha }}" --config.extraMetadata.version=${{ steps.date.outputs.time }} --config.extraMetadata.name=curtin-appx --config.win.artifactName="Curtin.v${{ steps.info.outputs.version }}-store-arm64.appx" --config.npmRebuild=false --publish="never"
         env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
@@ -78,5 +78,5 @@ jobs:
         name: Upload ARM64 AppX
         if: ${{ env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'ci-test' }}
         with:
-          name: twinkle-tray-appx-arm64-${{ steps.info.outputs.version }}-${{ github.sha }}
+          name: curtin-appx-arm64-${{ steps.info.outputs.version }}-${{ github.sha }}
           path: dist/*-store-arm64.appx

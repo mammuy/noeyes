@@ -1,4 +1,4 @@
-# Twinkle Tray Private
+# Curtin
 
 A minimalist, privacy-focused utility to manage external and internal monitor brightness via DDC/CI and WMI on Windows. 
 
