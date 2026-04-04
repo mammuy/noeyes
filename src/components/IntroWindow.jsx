@@ -1,9 +1,6 @@
 import React, { PureComponent } from "react";
-import TranslateReact from "../TranslateReact"
 import AppLogo from "../assets/logo.png"
 import IntroVideo from "../assets/intro-video.mp4"
-
-let T = new TranslateReact({}, {})
 
 export default class IntroWindow extends PureComponent {
 
@@ -11,19 +8,14 @@ export default class IntroWindow extends PureComponent {
         super(props)
     }
 
-    componentDidMount() {
-        window.addEventListener("localizationUpdated", (e) => { T.setLocalizationData(e.detail.desired, e.detail.default); this.forceUpdate() })
-        window.ipc.send('request-localization')
-    }
-
     render() {
         return (
             <div className="page">
                 <img src={AppLogo} />
-                <div className="intro-title">{T.t("INTRO_TITLE")}</div>
-                <p>{T.t("INTRO_INSTRUCTIONS")}</p>
+                <div className="intro-title">Hello, Curtin!</div>
+                <p>The tray icon for Curtin is probably hidden, so you should move it to some place you can easily access it. See below for instructions.</p>
                 <video id="video" width="400" height="300" preload={true} loop={true}><source src={IntroVideo} type="video/mp4" /></video>
-                <a className="button" onClick={window.closeIntro}>{T.t("GENERIC_CLOSE")}</a>
+                <a className="button" onClick={window.closeIntro}>Close</a>
             </div>
         );
     }

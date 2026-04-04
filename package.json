@@ -41,9 +41,8 @@
   },
   "build": {
     "productName": "Curtin",
-    "appId": "com.helmet.curtin",
+    "appId": "local.monitor.control",
     "compression": "normal",
-    "electronLanguages": ["en-US"],
     "directories": {
       "buildResources": "resources"
     },
@@ -138,7 +137,6 @@
       "applicationId": "Curtin",
       "displayName": "Curtin",
       "identityName": "Helmet.Curtin",
-      "publisher": "CN=B8E9A58B-32A7-4C6C-A474-D4BE2A3CEAD8",
       "showNameOnTiles": false,
       "backgroundColor": "#000000",
       "addAutoLaunchExtension": true,

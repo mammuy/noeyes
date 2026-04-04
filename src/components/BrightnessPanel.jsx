@@ -2,7 +2,6 @@ import React, { memo, useEffect, useMemo, useState } from "react";
 import Slider from "./Slider";
 import DDCCISliders from "./DDCCISliders"
 import HDRSliders from "./HDRSliders";
-import TranslateReact from "../TranslateReact"
 import getMonitorName from "../utils/BrightnessPanel/getMonitorName";
 
 const BrightnessPanel = memo(function BrightnessPanel() {
@@ -20,7 +19,6 @@ const BrightnessPanel = memo(function BrightnessPanel() {
   const [levelsChanged, setLevelsChanged] = useState(false)
   const [init, setInit] = useState(false)
   const [lastLevels, setLastLevels] = useState([])
-  const [T] = useState(new TranslateReact({}, {}))
 
   const numMonitors = useMemo(() => {
     let localNumMonitors = 0
@@ -173,7 +171,6 @@ const BrightnessPanel = memo(function BrightnessPanel() {
   useEffect(() => {
     window.addEventListener("monitorsUpdated", (e) => recievedMonitors(e))
     window.addEventListener("settingsUpdated", (e) => recievedSettings(e))
-    window.addEventListener("localizationUpdated", (e) => T.setLocalizationData(e.detail.desired, e.detail.default))
     window.addEventListener("updateUpdated", (e) => recievedUpdate(e))
     window.addEventListener("sleepUpdated", (e) => recievedSleep(e))
     window.addEventListener("isRefreshing", (e) => handleIsRefreshingUpdate(e))
@@ -185,13 +182,11 @@ const BrightnessPanel = memo(function BrightnessPanel() {
     // Update brightness every interval, if changed
     window.requestSettings()
     window.requestMonitors()
-    window.ipc.send('request-localization')
     window.reactReady = true
 
     return () => {
       window.removeEventListener("monitorsUpdated")
       window.removeEventListener("settingsUpdated")
-      window.removeEventListener("localizationUpdated")
       window.removeEventListener("updateUpdated")
       window.removeEventListener("sleepUpdated")
       window.removeEventListener("isRefreshing")
@@ -210,9 +205,9 @@ const BrightnessPanel = memo(function BrightnessPanel() {
   const getMonitors = () => {
     if (!state.monitors || numMonitors == 0) {
       if (state.isRefreshing) {
-        return (<div className="no-displays-message" style={{ textAlign: "center", paddingBottom: "15px" }}>{T.t("GENERIC_DETECTING_DISPLAYS")}</div>)
+        return (<div className="no-displays-message" style={{ textAlign: "center", paddingBottom: "15px" }}>Detecting displays…</div>)
       }
-      return (<div className="no-displays-message">{T.t("GENERIC_NO_COMPATIBLE_DISPLAYS")}</div>)
+      return (<div className="no-displays-message">No compatible displays found. Please check that "DDC/CI" is enabled for your displays.</div>)
     } else {
       if (state.linkedLevelsActive) {
         // Combine all monitors
@@ -226,10 +221,10 @@ const BrightnessPanel = memo(function BrightnessPanel() {
         if (lastValidMonitor) {
           const monitor = lastValidMonitor
           return (
-            <Slider name={T.t("GENERIC_ALL_DISPLAYS")} id={monitor.id} level={monitor.brightness} min={0} max={100} num={monitor.num} monitortype={monitor.type} hwid={monitor.key} key={monitor.key} onChange={handleChange} scrollAmount={window.settings?.scrollFlyoutAmount} />
+            <Slider name="All Displays" id={monitor.id} level={monitor.brightness} min={0} max={100} num={monitor.num} monitortype={monitor.type} hwid={monitor.key} key={monitor.key} onChange={handleChange} scrollAmount={window.settings?.scrollFlyoutAmount} />
           )
         }
-        return (<div className="no-displays-message">{T.t("GENERIC_NO_COMPATIBLE_DISPLAYS")}</div>)
+        return (<div className="no-displays-message">No compatible displays found. Please check that "DDC/CI" is enabled for your displays.</div>)
       } else {
         // Show all valid monitors individually
         const sorted = Object.values(state.monitors).slice(0).sort((a, b) => {
@@ -295,7 +290,7 @@ const BrightnessPanel = memo(function BrightnessPanel() {
               const showPowerButton = () => {
                 const customFeatureEnabled = window.settings?.monitorFeaturesSettings?.[monitor?.hwid[1]]?.["0xD6"]
                 if (monitorFeatures?.["0xD6"] && (monitor.features?.["0xD6"] || customFeatureEnabled)) {
-                  return (<div className="feature-power-icon simple" onClick={powerOff}><span className="icon vfix">&#xE7E8;</span><span>{(monitor.features?.["0xD6"][0] >= 4 ? T.t("PANEL_LABEL_TURN_ON") : T.t("PANEL_LABEL_TURN_OFF"))}</span></div>)
+                  return (<div className="feature-power-icon simple" onClick={powerOff}><span className="icon vfix">&#xE7E8;</span><span>{(monitor.features?.["0xD6"][0] >= 4 ? "Power on" : "Power off")}</span></div>)
                 }
               }
 
@@ -355,12 +350,12 @@ const BrightnessPanel = memo(function BrightnessPanel() {
   return (
     <div className="window-base" data-theme={window.settings.theme || "default"} id="panel" data-refreshing={state.isRefreshing}>
       <div className="titlebar">
-        <div className="title">{T.t("PANEL_TITLE")}</div>
+        <div className="title">Adjust Brightness</div>
         <div className="icons">
           {
             numMonitors > 1 &&
             <div
-              title={T.t("PANEL_BUTTON_LINK_LEVELS")}
+              title="Link levels"
               data-active={state.linkedLevelsActive}
               onClick={toggleLinkedLevels}
               className="link">
@@ -370,13 +365,13 @@ const BrightnessPanel = memo(function BrightnessPanel() {
           {
             window.settings.sleepAction !== "none" &&
             <div
-              title={T.t("PANEL_BUTTON_TURN_OFF_DISPLAYS")}
+              title="Turn off displays"
               className="off"
               onClick={window.turnOffDisplays}>
               &#xF71D;
             </div>
           }
-          <div title={T.t("GENERIC_SETTINGS")} className="settings" onClick={window.openSettings}>&#xE713;</div>
+          <div title="Settings" className="settings" onClick={window.openSettings}>&#xE713;</div>
         </div>
       </div>
       {state.sleeping ? (<div></div>) : getMonitors()}
@@ -385,14 +380,14 @@ const BrightnessPanel = memo(function BrightnessPanel() {
           ?
           <div className="updateBar">
             <div className="left">
-              {T.t("PANEL_UPDATE_AVAILABLE")}
+              New version available
               ({state.update.version})
             </div>
             <div className="right">
               <a onClick={window.installUpdate}>
-                {T.t("GENERIC_INSTALL")}
+                Install
               </a>
-              <a className="icon" title={T.t("GENERIC_DISMISS")} onClick={window.dismissUpdate}>
+              <a className="icon" title="Dismiss" onClick={window.dismissUpdate}>
                 &#xEF2C;
               </a>
             </div>
