@@ -240,15 +240,6 @@ window.addEventListener("set-sdr-brightness", e => {
     ipc.send("set-sdr-brightness", { monitor, value })
 })
 
-const SunCalc = require('suncalc')
-function getSunCalcTimes(lat, long) {
-    const localTimes = SunCalc.getTimes(new Date(), lat, long)
-    for (const timeName in localTimes) {
-        const time = localTimes[timeName].toLocaleTimeString()
-        localTimes[timeName] = `${time.slice(0,4)}${time.slice(7)}`
-    }
-    return localTimes
-}
 
 window.ipc = ipc
 window.updateBrightness = updateBrightness
@@ -266,7 +257,7 @@ window.showPanel = false
 window.reactReady = false
 window.settings = getArgumentVars().settings
 window.accent = "cyan"
-window.getSunCalcTimes = getSunCalcTimes
+
 
 window.version = 'v' + getArgumentVars().appVersion
 window.versionTag = getArgumentVars().appVersionTag
