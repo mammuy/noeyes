@@ -1,4 +1,4 @@
-const { app, BrowserWindow, nativeTheme, systemPreferences, Menu, ipcMain, screen, powerMonitor, shell, Tray, session, autoUpdater } = require('electron')
+const { app, BrowserWindow, nativeTheme, systemPreferences, Menu, ipcMain, screen, powerMonitor, Tray, session } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const { fork } = require('child_process')
@@ -27,15 +27,11 @@ let panelWindow = null
 let settingsWindow = null
 let monitorsThread = null
 
-// --- Security & Hardening ---
-
-// 1. Proactively disable all auto-update logic
-autoUpdater.on('error', () => {}) 
-autoUpdater.setFeedURL({ url: '' }) 
 
 // 2. Global Session-Level Network Block (Kill-Switch)
 // This applies to the entire application session.
 app.on('ready', () => {
+  // 1. Global Session-Level Network Block (Kill-Switch)
   session.defaultSession.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
     const url = details.url;
     // Only allow local file access and localhost (for development)
@@ -47,7 +43,17 @@ app.on('ready', () => {
     }
   });
 
-  Logger.info("Application starting up with full network isolation.")
+  // 2. Global CSP Hardening (Applies to all windows in the session)
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ["default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';"]
+      }
+    })
+  })
+
+  Logger.info("Application starting up with full network isolation and CSP enabled.")
   loadSettings()
   startMonitorThread()
   createTray()
@@ -124,15 +130,6 @@ function createPanel() {
     }
   })
 
-  // CSP Hardening
-  panelWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': ["default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';"]
-      }
-    })
-  })
 
   panelWindow.loadURL(isDev ? "http://localhost:3000/index.html" : `file://${path.join(__dirname, "../build/index.html")}`)
   panelWindow.on('blur', () => panelWindow.hide())
@@ -215,10 +212,20 @@ ipcMain.on('request-settings', () => {
 })
 
 ipcMain.on('update-brightness', (event, { id, brightness }) => {
+  // Validate brightness parameters
+  if (typeof id !== 'string' || typeof brightness !== 'number' || brightness < 0 || brightness > 100 || !Number.isFinite(brightness)) {
+    Logger.error(`Invalid brightness parameters: id=${id}, brightness=${brightness}`)
+    return
+  }
   if (monitorsThread) monitorsThread.send({ type: 'brightness', id, brightness })
 })
 
 ipcMain.on('save-settings', (event, newSettings) => {
+  // Validate settings object
+  if (typeof newSettings !== 'object' || newSettings === null) {
+    Logger.error('Invalid settings object received via save-settings')
+    return
+  }
   saveSettings(newSettings)
 })
 

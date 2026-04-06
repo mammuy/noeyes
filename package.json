@@ -11,14 +11,7 @@
     "dev": "electron . --dev",
     "electron-build": "electron-builder --x64",
     "postinstall": "electron-builder install-app-deps",
-    "appx": "npm run parcel-build && electron-builder --x64 -w appx -c.extraMetadata.name=curtin-appx -c.win.artifactName=\"${productName} v${version}-store.${ext}\"",
-    "appx-unsigned": "npm run parcel-build && electron-builder --x64 -w appx -c.appx.publisher=\"CN=AppModelSamples, OID.2.25.311729368913984317654407730594956997722=1\" -c.extraMetadata.name=curtin-appx -c.win.artifactName=\"${productName} v${version}-unsigned.${ext}\"",
-    "portable": "npm run parcel-build && electron-builder --x64 -w zip -c.extraMetadata.name=curtin-portable -c.win.artifactName=\"${productName} v${version}-portable.${ext}\" -c.win.compression=normal",
-    "arm64": "npm run parcel-build && electron-builder --arm64 -c.extraMetadata.name=curtin-arm64 -c.win.artifactName=\"${productName} v${version}-arm64.${ext}\" -c.win.compression=normal",
-    "rebuild-ddcci-dev": "npm rebuild @hensm/ddcci",
-    "appx-arm64": "npm run parcel-build && electron-builder --arm64 -w appx -c.extraMetadata.name=curtin-appx -c.win.artifactName=\"${productName} v${version}-store-arm64.${ext}\"",
-    "build": "npm ci & npm run parcel-build && npm run electron-build",
-    "build-all": "npm run build && npm run appx && npm run appx-arm64",
+    "build": "npm run parcel-build && npm run electron-build",
     "test-wmibridge": "node src/modules/wmi-bridge/example.js"
   },
   "keywords": [
@@ -50,10 +43,8 @@
       "README.md",
       "src/electron.js",
       "src/panel-preload.js",
-      "src/Translate.js",
       "src/settings-preload.js",
       "src/monitor-rules.json",
-      "src/localization/*",
       "src/Utils.js",
       "src/Monitors.js",
       "src/vcp-codes.js",
@@ -126,21 +117,22 @@
     ],
     "win": {
       "target": [
-        "nsis"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "artifactName": "${productName} v${version}.${ext}",
       "icon": "src/assets/logo.ico",
       "legalTrademarks": "Helmet"
-    },
-    "appx": {
-      "publisherDisplayName": "Helmet",
-      "applicationId": "Curtin",
-      "displayName": "Curtin",
-      "identityName": "Helmet.Curtin",
-      "showNameOnTiles": false,
-      "backgroundColor": "#000000",
-      "addAutoLaunchExtension": true,
-      "customExtensionsPath": "resources/appx/extensions.xml"
     },
     "nsis": {
       "deleteAppDataOnUninstall": true,
