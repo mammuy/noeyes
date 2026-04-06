@@ -211,17 +211,21 @@ ipcMain.on('request-settings', () => {
   sendToAllWindows('settingsUpdated', settings)
 })
 
-ipcMain.on('update-brightness', (event, { id, brightness }) => {
-  // Validate brightness parameters
-  if (typeof id !== 'string' || typeof brightness !== 'number' || brightness < 0 || brightness > 100 || !Number.isFinite(brightness)) {
-    Logger.error(`Invalid brightness parameters: id=${id}, brightness=${brightness}`)
+ipcMain.on('update-brightness', (event, { id, index, brightness, level }) => {
+  // Support both naming schemes for compatibility
+  const targetId = id || index
+  const targetValue = (brightness !== undefined ? brightness : level)
+  
+  if (typeof targetId !== 'string' || typeof targetValue !== 'number' || targetValue < 0 || targetValue > 100 || !Number.isFinite(targetValue)) {
+    Logger.error(`Invalid brightness parameters: id=${targetId}, value=${targetValue}`)
     return
   }
-  if (monitorsThread) monitorsThread.send({ type: 'brightness', id, brightness })
+  if (monitorsThread) monitorsThread.send({ type: 'brightness', id: targetId, brightness: targetValue })
 })
 
-ipcMain.on('save-settings', (event, newSettings) => {
-  // Validate settings object
+ipcMain.on('save-settings', (event, data) => {
+  // Handle both direct settings and wrapped objects
+  const newSettings = (data && data.newSettings) ? data.newSettings : data
   if (typeof newSettings !== 'object' || newSettings === null) {
     Logger.error('Invalid settings object received via save-settings')
     return
@@ -229,9 +233,68 @@ ipcMain.on('save-settings', (event, newSettings) => {
   saveSettings(newSettings)
 })
 
-ipcMain.on('window-close', (e) => {
+ipcMain.on('send-settings', (event, data) => {
+  // Alias for save-settings used by some preload functions
+  const newSettings = (data && data.newSettings) ? data.newSettings : data
+  saveSettings(newSettings)
+})
+
+ipcMain.on('set-vcp', (event, { monitor, code, value }) => {
+  if (monitorsThread) {
+    monitorsThread.send({ type: 'vcp', id: monitor.id, code, value })
+  }
+})
+
+ipcMain.on('open-settings', () => {
+  createSettings()
+})
+
+ipcMain.on('panel-height', (event, height) => {
+  if (panelWindow) {
+    const { width } = panelWindow.getBounds()
+    const trayBounds = tray.getBounds()
+    panelWindow.setBounds({
+      width: 350,
+      height: Math.min(height + 20, 600),
+      x: trayBounds.x - (350 / 2) + (trayBounds.width / 2),
+      y: trayBounds.y - Math.min(height + 20, 600) - 10
+    })
+  }
+})
+
+ipcMain.on('sleep-displays', () => {
+  const { exec } = require('child_process')
+  exec('powershell (Add-Type \'[DllImport(\"user32.dll\")]public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);\' -Name a -Passthru)::SendMessage(-1, 0x0112, 0xF170, 2)')
+})
+
+ipcMain.on('full-refresh', () => {
+  refreshMonitors(true)
+})
+
+ipcMain.on('blur-panel', () => {
+  if (panelWindow) panelWindow.hide()
+})
+
+ipcMain.on('windowClose', (e) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (win) win.close()
+})
+
+ipcMain.on('windowMinimize', (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (win) win.minimize()
+})
+
+ipcMain.on('windowToggleMaximize', (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (win) {
+    if (win.isMaximized()) win.unmaximize()
+    else win.maximize()
+  }
+})
+
+ipcMain.on('log', (event, msg) => {
+  Logger.info(`[Renderer] ${msg}`)
 })
 
 // --- System Events ---

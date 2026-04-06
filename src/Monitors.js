@@ -20,6 +20,18 @@ function getDDCCI() {
     }
 }
 
+function setVCP(code, value, id) {
+    Logger.info(`Setting VCP ${code} for ${id} to ${value}`);
+    const ddc = getDDCCI()
+    if (ddc) {
+        try {
+            ddc.setVCP(id, code, value)
+        } catch (e) {
+            Logger.error(`Failed to set DDC/CI VCP for ${id}`, e);
+        }
+    }
+}
+
 process.on('message', async (data) => {
     try {
         if (data.type === "refreshMonitors") {
@@ -30,6 +42,8 @@ process.on('message', async (data) => {
             })
         } else if (data.type === "brightness") {
             setBrightness(data.brightness, data.id)
+        } else if (data.type === "vcp") {
+            setVCP(data.code, data.value, data.id)
         } else if (data.type === "settings") {
             settings = data.settings
         }
